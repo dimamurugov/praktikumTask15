@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+const { errors } = require('celebrate');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -24,6 +26,19 @@ app.post('/signup', createUser);
 
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/card'));
+
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res
+    .status(err.statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+});
 
 app.listen(PORT);
 
