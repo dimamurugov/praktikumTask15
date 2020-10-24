@@ -7,8 +7,12 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { login, createUser } = require('./controllers/user');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
+
+app.use(requestLogger);
+
 app.use(cookieParser());
 const { PORT = 3000 } = process.env;
 
@@ -40,6 +44,8 @@ app.post('/signup', celebrate({
 
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/card'));
+
+app.use(errorLogger);
 
 app.use(errors());
 
