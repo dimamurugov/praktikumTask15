@@ -7,7 +7,11 @@ const {
 } = require('../controllers/user');
 
 router.get('/', auth, getUsers);
-router.get('/:id', auth, getUser);
+router.get('/:id', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24),
+  }),
+}), auth, getUser);
 
 router.patch('/me', celebrate({
   body: Joi.object().keys({
@@ -15,6 +19,10 @@ router.patch('/me', celebrate({
     about: Joi.string().required().min(2).max(30),
   }),
 }), auth, updatetUser);
-router.patch('/me/avatar', auth, updatetAvatar);
+router.patch('/me/avatar', celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/),
+  }),
+}), auth, updatetAvatar);
 
 module.exports = router;

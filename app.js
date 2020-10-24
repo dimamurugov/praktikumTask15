@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { errors } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -21,8 +22,21 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().pattern(/([\w-]\.?)+@([\w-]\.?)+\.\w{2,}/),
+    password: Joi.string().required().min(8).max(30),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+    avatar: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/),
+    email: Joi.string().required().pattern(/([\w-]\.?)+@([\w-]\.?)+\.\w{2,}/),
+    password: Joi.string().required().min(8).max(30),
+  }),
+}), createUser);
 
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/card'));
